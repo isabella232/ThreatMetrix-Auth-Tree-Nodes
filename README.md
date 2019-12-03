@@ -28,7 +28,7 @@ new nodes. The nodes will then appear in the authentication trees components pal
 ### ThreatMetrix Profiler Node
 This node tags the AM login page with the ThreatMetrix JS to collect information about the event.
 
-####ThreatMetrix Profiler Node Configuration
+#### ThreatMetrix Profiler Node Configuration
 * **Org ID** - Org ID is the unique id associated with ThreatMetrix generated for your organization.
 * **Page ID** - The Page ID is an identifier to be used if you place the ThreatMetrix tag on multiple pages.
 * **Profiler URI** - ThreatMetrix Profiler URI.
@@ -40,7 +40,7 @@ This node tags the AM login page with the ThreatMetrix JS to collect information
 This node makes a request the ThreatMetrix Session Query API to retrieve a policy decision about the previously
  generated user session.
  
-####ThreatMetrix Session Query Node Configuration
+#### ThreatMetrix Session Query Node Configuration
 
  * **API Key** - This is a unique key allocated by ThreatMetrix and associated with an Org Id.
  * **Service Type** - Restricts which output fields are returned based on the level of access that a customer has
@@ -62,16 +62,16 @@ This node makes a request the ThreatMetrix Session Query API to retrieve a polic
  This node analyzes the response from the ThreatMetrix Session Query Node and checks to see if the risk score is
  above the configured value.
   
- ####ThreatMetrix Policy Score Node Configuration
+ #### ThreatMetrix Policy Score Node Configuration
  
   * **Policy Score Threshold** - The policy score threshold of the policy which is calculated based on the sum of the
  risk weights for each of the rules configured within it.
  
- ###ThreatMetrix Reason Code Node
+ ### ThreatMetrix Reason Code Node
  This node analyzes the response from the ThreatMetrix Session Query Node and checks to see if an individual reason
   code has been returned. These reason codes correspond to ThreatMetrix Rule Names within a ThreatMetrix Policy.
  
- ####ThreatMetrix Reason Code Node Configuration
+ #### ThreatMetrix Reason Code Node Configuration
  * **Reason Code Outcomes** - A list of Reason Codes that you would like to check for from a ThreatMetrix policy
   evaluation. When a Reason Code is added to this list, a new outcome will presented on the node. The node will
    iterate through the configured Reason Code until a Reason code is found and will return that outcome. Otherwise
@@ -80,7 +80,7 @@ This node makes a request the ThreatMetrix Session Query API to retrieve a polic
   ### ThreatMetrix Update Review Node
   This node calls the ThreatMetrix Update API to update the session with the Final Review Status for the users session.
    
-  ####ThreatMetrix Update Review Node Configuration
+  #### ThreatMetrix Update Review Node Configuration
   
    * **API Key** - This is a unique key allocated by ThreatMetrix and associated with an Org Id.
    * **Final Review Status** - Indicates the value of the new status that the transaction should be updated to.
@@ -92,11 +92,7 @@ This node makes a request the ThreatMetrix Session Query API to retrieve a polic
    * **Line of Business** - The Line of Business as specified by the customer.
    * **Update URI** - ThreatMetrix Update URI.
  
- ### Example Flows
+ ### Example Flow
  
- #### Provision Dynamic Accounts Using Auto Federation
- 
- To use the SAML node to federate to a remote IdP, then dynamically provision an account locally at the SP, 
- configure a tree like so:
  
  ![SAML_TREE](./images/threatmetrix_flow.png)
