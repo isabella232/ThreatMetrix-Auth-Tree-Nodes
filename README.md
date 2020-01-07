@@ -83,7 +83,8 @@ This node makes a request the ThreatMetrix Session Query API to retrieve a polic
   #### ThreatMetrix Update Review Node Configuration
   
    * **API Key** - This is a unique key allocated by ThreatMetrix and associated with an Org Id.
-   * **Final Review Status** - Indicates the value of the new status that the transaction should be updated to.
+   * **Final Review Status** - Indicates the value of the new status that the transaction should be updated to. If
+    `None` is selected, then a final review status will not be passed in the request.
    * **Notes** - An optional notes parameter that allows you to append any notes such as why the review status is
    being updated.
    * **Trust Tag Name** - The Trust Tag Name from one of ThreatMetrix's predefined set of Global Trust Tags.
