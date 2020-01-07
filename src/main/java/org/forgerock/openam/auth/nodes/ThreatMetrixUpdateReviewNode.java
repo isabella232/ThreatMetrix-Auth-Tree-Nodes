@@ -185,7 +185,9 @@ public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
         form.add(API_KEY, String.valueOf(config.apiKey()));
         form.add(REQUEST_ID, requestId);
         form.add(ACTION, UPDATE_REVIEW_STATUS);
-        form.add(FINAL_REVIEW_STATUS, config.finalReviewStatus().toString());
+        if (!FinalReviewStatus.NONE.equals(config.finalReviewStatus())) {
+            form.add(FINAL_REVIEW_STATUS, config.finalReviewStatus().toString());
+        }
         if (StringUtils.isNotEmpty(config.notes())) {
             form.add(NOTES, config.notes());
         }
@@ -275,6 +277,7 @@ public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
      * Indicates the value of the new status that the transaction should be updated to.
      */
     public enum FinalReviewStatus {
+        NONE("none"),
         PASS("pass"),
         REVIEW("review"),
         REJECT("reject");
