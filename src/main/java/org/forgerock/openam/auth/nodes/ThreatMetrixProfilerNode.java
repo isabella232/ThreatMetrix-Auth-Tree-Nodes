@@ -4,11 +4,17 @@ import static org.forgerock.openam.auth.node.api.Action.send;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.ORG_ID;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.SESSION_ID;
 
+import java.util.Arrays;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.security.auth.callback.TextOutputCallback;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.OutputState;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 
@@ -16,17 +22,8 @@ import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.authentication.callbacks.HiddenValueCallback;
 import com.sun.identity.authentication.callbacks.ScriptTextOutputCallback;
 
-import java.util.Arrays;
-import java.util.UUID;
-import javax.inject.Inject;
-import javax.security.auth.callback.TextOutputCallback;
-
-/**
- * A node that checks to see if zero-page login headers have specified username and whether that username is in a group
- * permitted to use zero-page login headers.
- */
-@Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
-        configClass      = ThreatMetrixProfilerNode.Config.class)
+@Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class,
+        configClass = ThreatMetrixProfilerNode.Config.class, tags = {"risk"})
 public class ThreatMetrixProfilerNode extends SingleOutcomeNode {
     private final Config config;
 
@@ -107,8 +104,14 @@ public class ThreatMetrixProfilerNode extends SingleOutcomeNode {
                 "tmx_iframe.style.top = '-5000px';\n" +
                 "document.getElementsByTagName('body')[0].appendChild(tmx_iframe);\n";
 
+
         return send(Arrays.asList(new ScriptTextOutputCallback(String.format(script, scriptSrc)),
                                   new HiddenValueCallback("ThreatMetrix Session ID"))).replaceSharedState(sharedState).build();
+    }
+
+    @Override
+    public OutputState[] getOutputs() {
+            return new OutputState[] {new OutputState(SESSION_ID)};
     }
 }
 

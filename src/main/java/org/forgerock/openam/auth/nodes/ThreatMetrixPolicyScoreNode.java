@@ -4,9 +4,15 @@ package org.forgerock.openam.auth.nodes;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.POLICY_SCORE;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.getSessionQueryResponse;
 
+import java.util.List;
+import java.util.ResourceBundle;
+
+import javax.inject.Inject;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
+import org.forgerock.openam.auth.node.api.InputState;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.OutcomeProvider;
@@ -16,16 +22,12 @@ import org.forgerock.util.i18n.PreferredLocales;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 
-import java.util.List;
-import java.util.ResourceBundle;
-import javax.inject.Inject;
-
 @Node.Metadata(outcomeProvider = ThreatMetrixPolicyScoreNode.ThreatMetrixPolicyScoreOutcomeProvider.class,
-        configClass = ThreatMetrixPolicyScoreNode.Config.class)
+        configClass = ThreatMetrixPolicyScoreNode.Config.class, tags = {"risk"})
 public class ThreatMetrixPolicyScoreNode implements Node {
 
     private static final String BUNDLE = "org/forgerock/openam/auth/nodes/ThreatMetrixPolicyScoreNode";
-    private Config config;
+    private final Config config;
 
     /**
      * Configuration for the node.
@@ -89,5 +91,10 @@ public class ThreatMetrixPolicyScoreNode implements Node {
                                 bundle.getString("greaterThanOrEqualOutcome")),
                     new Outcome(ThreatMetrixPolicyScoreOutcome.LESS_THAN.name(), bundle.getString("lessThanOutcome")));
         }
+    }
+
+    @Override
+    public InputState[] getInputs() {
+        return new InputState[] {new InputState(ThreatMetrixHelper.SESSION_QUERY_RESPONSE, true)};
     }
 }

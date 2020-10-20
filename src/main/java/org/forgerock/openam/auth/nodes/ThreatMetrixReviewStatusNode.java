@@ -5,9 +5,13 @@ import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.REVIEW_STATUS;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.SESSION_QUERY_RESPONSE;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.getSessionQueryResponse;
 
+import java.util.List;
+import java.util.ResourceBundle;
+
 import org.apache.commons.lang.StringUtils;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
+import org.forgerock.openam.auth.node.api.InputState;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.OutcomeProvider;
@@ -16,11 +20,8 @@ import org.forgerock.util.i18n.PreferredLocales;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.List;
-import java.util.ResourceBundle;
-
 @Node.Metadata(outcomeProvider = ThreatMetrixReviewStatusNode.ThreatMetrixReviewStatusOutcomeProvider.class,
-        configClass = ThreatMetrixReviewStatusNode.Config.class)
+        configClass = ThreatMetrixReviewStatusNode.Config.class, tags = {"risk"})
 public class ThreatMetrixReviewStatusNode implements Node {
 
     private static final String BUNDLE = "org/forgerock/openam/auth/nodes/ThreatMetrixReviewStatusNode";
@@ -63,7 +64,7 @@ public class ThreatMetrixReviewStatusNode implements Node {
         REVIEW("review"),
         REJECT("reject");
 
-        private String stringName;
+        private final String stringName;
 
         ThreatMetrixReviewStatusOutcome(String stringName) {
             this.stringName = stringName;
@@ -91,5 +92,10 @@ public class ThreatMetrixReviewStatusNode implements Node {
                     new Outcome(ThreatMetrixReviewStatusOutcome.REVIEW.name(), bundle.getString("reviewOutcome")),
                     new Outcome(ThreatMetrixReviewStatusOutcome.REJECT.name(), bundle.getString("rejectOutcome")));
         }
+    }
+
+    @Override
+    public InputState[] getInputs() {
+        return new InputState[] {new InputState(ThreatMetrixHelper.SESSION_QUERY_RESPONSE, true)};
     }
 }

@@ -26,12 +26,19 @@ import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.LINE_OF_BUSINES
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.NOTES;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.ORG_ID;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.REQUEST_ID;
+import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.SESSION_ID;
+import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.SESSION_QUERY_RESPONSE;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.TAG_CONTEXT;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.TAG_NAME;
+import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.TMX_SESSION_QUERY_PARAMETERS;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.UPDATE_RESPONSE;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.UPDATE_REVIEW_STATUS;
 import static org.forgerock.util.CloseSilentlyFunction.closeSilently;
 import static org.forgerock.util.Closeables.closeSilentlyAsync;
+
+import java.net.URISyntaxException;
+
+import javax.inject.Inject;
 
 import org.apache.commons.lang.StringUtils;
 import org.forgerock.http.handler.HttpClientHandler;
@@ -41,8 +48,10 @@ import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
+import org.forgerock.openam.auth.node.api.InputState;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.OutputState;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.sm.annotations.adapters.Password;
@@ -51,17 +60,11 @@ import org.forgerock.util.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.assistedinject.Assisted;
 
-import java.net.URISyntaxException;
-import javax.inject.Inject;
-
-/**
- * A node that checks to see if zero-page login headers have specified username and whether that username is in a group
- * permitted to use zero-page login headers.
- */
 @Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class,
-        configClass = ThreatMetrixUpdateReviewNode.Config.class)
+        configClass = ThreatMetrixUpdateReviewNode.Config.class, tags = {"risk"})
 public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
 
     private final Logger logger = LoggerFactory.getLogger("amAuth");
@@ -260,7 +263,7 @@ public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
          */
         THREE_DS("3ds");
 
-        private String serviceType;
+        private final String serviceType;
 
         ServiceType(String serviceType) {
             this.serviceType = serviceType;
@@ -281,7 +284,7 @@ public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
         PASS("pass"),
         REVIEW("review"),
         REJECT("reject");
-        private String finalReviewStatus;
+        private final String finalReviewStatus;
 
         FinalReviewStatus(String finalReviewStatus) {
             this.finalReviewStatus = finalReviewStatus;
@@ -333,7 +336,7 @@ public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
         _LOAN_APP("_LOAN_APP"),
         _LOAN_FUND("_LOAN_FUND"),
         _LOAN_DEPOSIT("_LOAN_DEPOSIT");
-        private String trustTagName;
+        private final String trustTagName;
 
         TrustTagName(String trustTagName) {
             this.trustTagName = trustTagName;
@@ -404,9 +407,7 @@ public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
         _T_DIDSP("_T_DIDSP"),
         _T_MALW("_T_MALW"),
         _T_MITM("_T_MITM");
-
-
-        private String trustTagContext;
+        private final String trustTagContext;
 
         TrustTagContext(String trustTagContext) {
             this.trustTagContext = trustTagContext;
@@ -416,5 +417,15 @@ public class ThreatMetrixUpdateReviewNode extends SingleOutcomeNode {
         public String toString() {
             return trustTagContext;
         }
+    }
+
+    @Override
+    public InputState[] getInputs() {
+        return new InputState[]{new InputState(ORG_ID, true), new InputState(REQUEST_ID, true)};
+    }
+
+    @Override
+    public OutputState[] getOutputs() {
+        return new OutputState[]{new OutputState(UPDATE_RESPONSE, ImmutableMap.of("outcome", true))};
     }
 }

@@ -7,10 +7,16 @@ import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.NONE_TRIGGERED;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.REASON_CODE;
 import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.getSessionQueryResponse;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.JsonValueException;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
+import org.forgerock.openam.auth.node.api.InputState;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.OutcomeProvider;
@@ -19,12 +25,8 @@ import org.forgerock.util.i18n.PreferredLocales;
 
 import com.google.inject.assistedinject.Assisted;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-
 @Node.Metadata(outcomeProvider = ThreatMetrixReasonCodeNode.ThreatMetrixReasonCodeOutcomeProvider.class,
-        configClass = ThreatMetrixReasonCodeNode.Config.class)
+        configClass = ThreatMetrixReasonCodeNode.Config.class, tags = {"risk"})
 public class ThreatMetrixReasonCodeNode implements Node {
 
     private static final String BUNDLE = "org/forgerock/openam/auth/nodes/ThreatMetrixReasonCodeNode";
@@ -92,5 +94,10 @@ public class ThreatMetrixReasonCodeNode implements Node {
                 return emptyList();
             }
         }
+    }
+
+    @Override
+    public InputState[] getInputs() {
+        return new InputState[] {new InputState(ThreatMetrixHelper.SESSION_QUERY_RESPONSE, true)};
     }
 }

@@ -31,6 +31,11 @@ import static org.forgerock.openam.auth.nodes.ThreatMetrixHelper.TMX_SESSION_QUE
 import static org.forgerock.util.CloseSilentlyFunction.closeSilently;
 import static org.forgerock.util.Closeables.closeSilentlyAsync;
 
+import java.net.URISyntaxException;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.http.protocol.Form;
 import org.forgerock.http.protocol.Request;
@@ -38,8 +43,10 @@ import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
+import org.forgerock.openam.auth.node.api.InputState;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.OutputState;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.sm.annotations.adapters.Password;
@@ -49,19 +56,11 @@ import org.forgerock.util.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.assistedinject.Assisted;
 
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-import javax.inject.Inject;
-
-/**
- * A node that checks to see if zero-page login headers have specified username and whether that username is in a group
- * permitted to use zero-page login headers.
- */
-@Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
-               configClass      = ThreatMetrixSessionQueryNode.Config.class)
+@Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class,
+        configClass = ThreatMetrixSessionQueryNode.Config.class, tags = {"risk"})
 public class ThreatMetrixSessionQueryNode extends SingleOutcomeNode {
 
     private final Logger logger = LoggerFactory.getLogger("amAuth");
@@ -248,7 +247,7 @@ public class ThreatMetrixSessionQueryNode extends SingleOutcomeNode {
          */
         THREE_DS("3ds");
 
-        private String serviceType;
+        private final String serviceType;
         ServiceType(String serviceType) {
             this.serviceType = serviceType;
         }
@@ -288,7 +287,7 @@ public class ThreatMetrixSessionQueryNode extends SingleOutcomeNode {
         ADD_PAYMENT_INSTRUMENT("ADD_PAYMENT_INSTRUMENT"),
         MANAGE_PAYMENT_INSTRUMENT("MANAGE_PAYMENT_INSTRUMENT"),
         VERIFY_PAYMENT_INSTRUMENT("VERIFY_PAYMENT_INSTRUMENT");
-        private String eventType;
+        private final String eventType;
         EventType(String eventType) {
             this.eventType = eventType;
         }
@@ -297,5 +296,17 @@ public class ThreatMetrixSessionQueryNode extends SingleOutcomeNode {
         public String toString(){
             return eventType;
         }
+    }
+
+    @Override
+    public InputState[] getInputs() {
+        return new InputState[]{new InputState(SESSION_ID, true), new InputState(ORG_ID, true), new InputState(
+                TMX_SESSION_QUERY_PARAMETERS, false)};
+    }
+
+    @Override
+    public OutputState[] getOutputs() {
+        return new OutputState[]{new OutputState(SESSION_QUERY_RESPONSE, ImmutableMap.of("outcome", true)),
+                new OutputState(REQUEST_ID, ImmutableMap.of("outcome", true))};
     }
 }
